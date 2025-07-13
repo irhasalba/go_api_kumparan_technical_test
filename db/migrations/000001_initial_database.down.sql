@@ -1,0 +1,2 @@
+DROP TABLE authors IF EXISTS;
+DROP TABLE articles IF EXISTS; 
