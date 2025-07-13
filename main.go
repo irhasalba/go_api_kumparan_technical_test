@@ -6,8 +6,11 @@ import (
 	"go_api_kumparan/infra"
 	"go_api_kumparan/internal/handler"
 	"go_api_kumparan/internal/service"
+	"go_api_kumparan/internal/utils"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
 )
 
@@ -24,6 +27,14 @@ func main() {
 	articleService := service.NewArticleService(db, infra.PgxConn)
 	// init handler
 	articleHandler := handler.NewArticleHandler(*articleService)
+
+	app.Use(limiter.New(limiter.Config{
+		Max:        100,               // max 100 requests
+		Expiration: 300 * time.Second, // per 5 minute
+		LimitReached: func(ctx *fiber.Ctx) error {
+			return utils.FailedResponse(ctx, 429, "Too many requests. Please try again later.")
+		},
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
