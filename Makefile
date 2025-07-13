@@ -25,3 +25,6 @@ migrate-status:
 migrate-reset:
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_URL)" drop -f
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_URL)" up
+
+integration-test:
+	go test -v ./tests/main_integration_test.go
