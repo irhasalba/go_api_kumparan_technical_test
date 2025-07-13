@@ -106,3 +106,42 @@ func (q *Queries) ListArticlesFiltered(ctx context.Context, arg ListArticlesFilt
 	}
 	return items, nil
 }
+
+const listArticlesWithoutFilter = `-- name: ListArticlesWithoutFilter :many
+SELECT a.id, a.author_id, a.title, a.body, a.created_at
+FROM articles a
+JOIN authors u ON a.author_id = u.id
+ORDER BY a.created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListArticlesWithoutFilterParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListArticlesWithoutFilter(ctx context.Context, arg ListArticlesWithoutFilterParams) ([]Article, error) {
+	rows, err := q.db.Query(ctx, listArticlesWithoutFilter, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Article
+	for rows.Next() {
+		var i Article
+		if err := rows.Scan(
+			&i.ID,
+			&i.AuthorID,
+			&i.Title,
+			&i.Body,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

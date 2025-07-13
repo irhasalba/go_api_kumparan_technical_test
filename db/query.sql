@@ -23,3 +23,10 @@ WHERE
   ($2 = '' OR u.name ILIKE '%' || $2 || '%' )
 ORDER BY a.created_at DESC
 LIMIT $3 OFFSET $4;
+
+-- name: ListArticlesWithoutFilter :many
+SELECT a.*
+FROM articles a
+JOIN authors u ON a.author_id = u.id
+ORDER BY a.created_at DESC
+LIMIT $1 OFFSET $2;

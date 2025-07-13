@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"go_api_kumparan/internal/dto"
 	"go_api_kumparan/internal/query"
 	"go_api_kumparan/internal/utils"
@@ -48,12 +49,25 @@ func (a ArticleService) CreateArticle(ctx context.Context, req *dto.RequestArtic
 }
 
 func (a ArticleService) GetAllArticle(ctx context.Context, req *dto.GetAllArticleReq) (interface{}, error) {
-	result, err := a.q.ListArticlesFiltered(ctx, query.ListArticlesFilteredParams{
-		Column1: sql.NullString{String: req.Query, Valid: true},
-		Column2: sql.NullString{String: req.Author, Valid: true},
-		Limit:   5,
-		Offset:  int32(utils.PageToOffset(req.Page)),
-	})
+	var result []query.Article
+	var err error
+	if req.Author != "" || req.Query != "" {
+		result, err = a.q.ListArticlesFiltered(ctx, query.ListArticlesFilteredParams{
+			Column1: sql.NullString{String: req.Query, Valid: true},
+			Column2: sql.NullString{String: req.Author, Valid: true},
+			Limit:   5,
+			Offset:  int32(utils.PageToOffset(req.Page)),
+		})
+		if len(result) == 0 {
+			return nil, errors.New("Data not found")
+		}
+	} else {
+		result, err = a.q.ListArticlesWithoutFilter(ctx, query.ListArticlesWithoutFilterParams{
+			Limit:  5,
+			Offset: int32(utils.PageToOffset(req.Page)),
+		})
+	}
+
 	if err != nil {
 		return nil, err
 	}
