@@ -31,3 +31,13 @@ func FailedResponse(ctx *fiber.Ctx, status int, message string) error {
 	}
 	return ctx.Status(status).JSON(res)
 }
+
+func ValidationResponse(ctx *fiber.Ctx, status int, data interface{}) error {
+	res := ResponseStructure{
+		Status:    status,
+		Message:   "BAD REQUEST",
+		Timestamp: time.Now(),
+		Data:      data,
+	}
+	return ctx.Status(status).JSON(res)
+}

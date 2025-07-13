@@ -23,6 +23,9 @@ func (h *ArticleHandler) CreateArticle(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(req); err != nil {
 		return utils.FailedResponse(ctx, 400, err.Error())
 	}
+	if err := utils.Validate.Struct(req); err != nil {
+		return utils.ValidationResponse(ctx, 400, err.Error())
+	}
 	article, err := h.s.CreateArticle(ctx.Context(), req)
 	if err != nil {
 		return utils.FailedResponse(ctx, 400, err.Error())
