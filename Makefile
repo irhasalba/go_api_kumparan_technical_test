@@ -28,3 +28,6 @@ migrate-reset:
 
 integration-test:
 	go test -v ./tests/main_integration_test.go
+
+env:
+	cp env-example .env
